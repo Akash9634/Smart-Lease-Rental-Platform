@@ -32,6 +32,8 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToMany(mappedBy = "owner")
+    private List<Property> properties;
     //UserDetails methods (required by spring security)
     //These methods explain spring security how to read your user object
 
