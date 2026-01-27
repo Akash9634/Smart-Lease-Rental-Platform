@@ -29,7 +29,7 @@ public class Property {
     //Relationship: Link this property to the User(Landlord) who posted it
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id") //creates foreign key column in the DB
-    private User Owner;
+    private User owner;
 
 
 

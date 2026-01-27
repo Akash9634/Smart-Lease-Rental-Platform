@@ -1,5 +1,6 @@
 package com.smartlease.smartlease_backend.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,18 +35,19 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "owner")
     private List<Property> properties;
-    //UserDetails methods (required by spring security)
-    //These methods explain spring security how to read your user object
+
+
 
     public User() {
     }
 
-    public User(Long id, String name, String email, String password, Role role) {
+    public User(Long id, String name, String email, String password, Role role, List<Property> properties) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.properties = properties;
     }
 
     public Long getId() {
@@ -84,6 +86,16 @@ public class User implements UserDetails {
         this.role = role;
     }
 
+    public List<Property> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
+    }
+
+    //UserDetails methods (required by spring security)
+    //These methods explain spring security how to read your user object
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
         return List.of(new SimpleGrantedAuthority(role.name()));
