@@ -19,4 +19,11 @@ public class GlobalExceptionHandler {
         //return 409 conflict (for duplicates)
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateResource(DuplicateResourceException ex){
+        Map<String, String> response = new HashMap<>();
+        response.put("error",ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
 }

@@ -35,6 +35,17 @@ public class PropertyService {
 
     }
 
+    public void updateProperty(Long propertyId, PropertyRequest request, Principal connectedUser){
+
+        //get the current user
+        var User = (User) ((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+
+        //find the property or else throw error
+        var property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new RuntimeException("property not found"));
+
+    }
+
 
 
 }
