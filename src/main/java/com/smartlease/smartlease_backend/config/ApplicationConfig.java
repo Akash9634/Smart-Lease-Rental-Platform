@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,14 +22,13 @@ public class ApplicationConfig {
         this.userRepository = userRepository;
     }
 
-    // 1. UserDetailsService: "How do we find a user?"
-    // This lambda function tells Spring: "Go to userRepository and find by email."
+//     1. UserDetailsService: "How do we find a user?"
+//     This lambda function tells Spring: "Go to userRepository and find by email."
     @Bean
     public UserDetailsService userDetailsService(){
         return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
     }
-
 
     // 2. PasswordEncoder: "How do we encrypt passwords?" (BCrypt is standard)
     @Bean

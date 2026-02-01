@@ -9,8 +9,11 @@ import com.smartlease.smartlease_backend.model.User;
 import com.smartlease.smartlease_backend.repository.UserRepository;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -72,6 +75,8 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .build();
     }
+
+
 
 
 

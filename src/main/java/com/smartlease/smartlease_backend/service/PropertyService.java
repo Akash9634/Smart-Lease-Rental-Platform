@@ -6,9 +6,9 @@ import com.smartlease.smartlease_backend.model.User;
 import com.smartlease.smartlease_backend.repository.PropertyRepository;
 import com.smartlease.smartlease_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.security.Principal;
 
 @Service
 @RequiredArgsConstructor
@@ -16,10 +16,10 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
 
-    public void saveProperty(PropertyRequest request, Principal connectedUser){
+    public void saveProperty(PropertyRequest request){
         //get the currently logged-in user
-        var user = (User) ((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
         //create property object
         var property = Property.builder()
                 .title(request.getTitle())
@@ -35,11 +35,10 @@ public class PropertyService {
 
     }
 
-    public void updateProperty(Long propertyId, PropertyRequest request, Principal connectedUser){
-
+    public void updateProperty(Long propertyId, PropertyRequest request){
         //get the current user
-        var User = (User) ((org.springframework.security.authentication.UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
         //find the property or else throw error
         var property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new RuntimeException("property not found"));
