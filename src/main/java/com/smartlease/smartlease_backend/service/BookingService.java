@@ -1,5 +1,6 @@
 package com.smartlease.smartlease_backend.service;
 
+import com.smartlease.smartlease_backend.dto.BookingResponse;
 import com.smartlease.smartlease_backend.exception.BadRequestException;
 import com.smartlease.smartlease_backend.model.Booking;
 import com.smartlease.smartlease_backend.model.User;
@@ -23,7 +24,7 @@ public class BookingService {
         this.propertyRepository = propertyRepository;
     }
 
-    public Booking createBooking(Long propertyId){
+    public BookingResponse createBooking(Long propertyId){
         var property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new BadRequestException("property not found"));
 
@@ -50,8 +51,17 @@ public class BookingService {
         property.setAvailable(false);
         propertyRepository.save(property);
 
-        //return the Booking object
-        return booking;
+        //return the BookingResponseDTO
+        return BookingResponse.builder()
+                .id(booking.getId())
+                .status(booking.getStatus())
+                .bookingDate(booking.getBookingDate())
+                .propertyTitle(property.getTitle())
+                .propertyId(property.getId())
+                .tenantName(user.getName())
+                .build();
+
+
 
     }
 }

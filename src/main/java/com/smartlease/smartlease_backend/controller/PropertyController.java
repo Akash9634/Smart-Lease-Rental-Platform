@@ -24,7 +24,7 @@ public class PropertyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<?> updateProperty(@RequestBody PropertyRequest request, @PathVariable Long id){
         PropertyResponse response = service.updateProperty(id, request);
         return ResponseEntity.ok().body(response);

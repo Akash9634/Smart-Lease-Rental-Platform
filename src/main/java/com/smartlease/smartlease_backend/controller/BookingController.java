@@ -1,5 +1,6 @@
 package com.smartlease.smartlease_backend.controller;
 
+import com.smartlease.smartlease_backend.dto.BookingResponse;
 import com.smartlease.smartlease_backend.model.Booking;
 import com.smartlease.smartlease_backend.service.BookingService;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,8 @@ public class BookingController {
     private final BookingService service;
 
     @PostMapping("/{propertyId}")
-    public ResponseEntity<Booking> saveBooking(@PathVariable Long propertyId){
-        Booking booking = service.createBooking(propertyId);
+    public ResponseEntity<BookingResponse> saveBooking(@PathVariable Long propertyId){
+        BookingResponse booking = service.createBooking(propertyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 }

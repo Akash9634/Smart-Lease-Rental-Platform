@@ -43,11 +43,13 @@ public class PropertyService {
         propertyRepository.save(property);
 
         return PropertyResponse.builder()
+                .id(property.getId())
                 .title(property.getTitle())
                 .description(property.getDescription())
                 .address(property.getAddress())
                 .price(property.getPrice())
                 .imageUrl(property.getImageUrl())
+                .ownerName(property.getOwner().getName())
                 .build();
 
     }
@@ -65,20 +67,34 @@ public class PropertyService {
             throw new AccessDeniedException("you are not authorized to perform this operation");
         }
 
-        property.setAddress(request.getAddress());
-        property.setPrice(request.getPrice());
-        property.setDescription(request.getDescription());
-        property.setImageUrl(request.getImageUrl());
-        property.setTitle(request.getTitle());
+        if(request.getAddress()!=null){
+            property.setAddress(request.getAddress());
+        }
+        if(request.getPrice()!=null){
+            property.setPrice(request.getPrice());
+        }
+        if(request.getDescription()!=null){
+            property.setDescription(request.getDescription());
+        }
+        if(request.getImageUrl()!=null){
+            property.setImageUrl(request.getImageUrl());
+        }
+        if(request.getTitle()!=null){
+            property.setTitle(request.getTitle());
+        }
+
+
 
         propertyRepository.save(property);
 
         return PropertyResponse.builder()
+                .id(property.getId())
                 .title(property.getTitle())
                 .description(property.getDescription())
                 .address(property.getAddress())
                 .price(property.getPrice())
                 .imageUrl(property.getImageUrl())
+                .ownerName(property.getOwner().getName())
                 .build();
 
     }
@@ -107,12 +123,14 @@ public class PropertyService {
                 .orElseThrow(() -> new BadRequestException("property not found"));
 
         PropertyResponse response = PropertyResponse.builder()
+                .id(property.getId())
                 .title(property.getTitle())
                 .description(property.getDescription())
                 .address(property.getAddress())
                 .price(property.getPrice())
                 .imageUrl(property.getImageUrl())
                 .available(true)
+                .ownerName(property.getOwner().getName())
                 .build();
         return response;
     }
