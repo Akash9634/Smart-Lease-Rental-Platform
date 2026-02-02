@@ -12,8 +12,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +25,7 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
 
-    public void saveProperty(PropertyRequest request){
+    public PropertyResponse saveProperty(PropertyRequest request){
         //get the currently logged-in user
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) auth.getPrincipal();
@@ -38,15 +42,44 @@ public class PropertyService {
         //save to db
         propertyRepository.save(property);
 
+        return PropertyResponse.builder()
+                .title(property.getTitle())
+                .description(property.getDescription())
+                .address(property.getAddress())
+                .price(property.getPrice())
+                .imageUrl(property.getImageUrl())
+                .build();
+
     }
 
-    public void updateProperty(Long propertyId, PropertyRequest request){
+    @Transactional
+    public PropertyResponse updateProperty(Long propertyId, PropertyRequest request){
         //get the current user
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) auth.getPrincipal();
         //find the property or else throw error
         var property = propertyRepository.findById(propertyId)
-                .orElseThrow(() -> new RuntimeException("property not found"));
+                .orElseThrow(() -> new BadRequestException("property not found"));
+
+        if(!Objects.equals(user.getId(), property.getOwner().getId())){
+            throw new AccessDeniedException("you are not authorized to perform this operation");
+        }
+
+        property.setAddress(request.getAddress());
+        property.setPrice(request.getPrice());
+        property.setDescription(request.getDescription());
+        property.setImageUrl(request.getImageUrl());
+        property.setTitle(request.getTitle());
+
+        propertyRepository.save(property);
+
+        return PropertyResponse.builder()
+                .title(property.getTitle())
+                .description(property.getDescription())
+                .address(property.getAddress())
+                .price(property.getPrice())
+                .imageUrl(property.getImageUrl())
+                .build();
 
     }
 
@@ -82,6 +115,26 @@ public class PropertyService {
                 .available(true)
                 .build();
         return response;
+    }
+
+    public List<PropertyResponse> getMyProperties(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
+
+        return propertyRepository.findAll()
+                .stream()
+                .filter(property -> property.getOwner().getId().equals(user.getId()))
+                .map(property -> new PropertyResponse(
+                        property.getId(),
+                        property.getTitle(),
+                        property.getDescription(),
+                        property.getAddress(),
+                        property.getPrice(),
+                        property.isAvailable(),
+                        property.getImageUrl(),
+                        property.getOwner().getName()
+                ))
+                .toList();
     }
 
 
