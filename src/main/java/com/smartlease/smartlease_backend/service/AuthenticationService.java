@@ -2,9 +2,7 @@ package com.smartlease.smartlease_backend.service;
 
 
 import com.smartlease.smartlease_backend.config.JwtService;
-import com.smartlease.smartlease_backend.dto.AuthenticationRequest;
-import com.smartlease.smartlease_backend.dto.AuthenticationResponse;
-import com.smartlease.smartlease_backend.dto.RegisterRequest;
+import com.smartlease.smartlease_backend.dto.*;
 import com.smartlease.smartlease_backend.model.User;
 import com.smartlease.smartlease_backend.repository.UserRepository;
 import lombok.Builder;
@@ -16,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -76,7 +75,24 @@ public class AuthenticationService {
                 .build();
     }
 
+    public void deleteUser(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
 
+        repository.delete(user);
+    }
+
+    @Transactional
+    public void updateUser(UserRequest updateRequest){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
+
+        if(updateRequest.getName() != null) {
+            user.setName(updateRequest.getName());
+        }
+        repository.save(user);
+
+    }
 
 
 

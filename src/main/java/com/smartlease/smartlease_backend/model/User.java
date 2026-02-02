@@ -33,7 +33,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner",
+             cascade = CascadeType.REMOVE,
+            orphanRemoval = true)
     private List<Property> properties;
 
 
