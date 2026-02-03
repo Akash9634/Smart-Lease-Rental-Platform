@@ -3,11 +3,13 @@ package com.smartlease.smartlease_backend.service;
 
 import com.smartlease.smartlease_backend.config.JwtService;
 import com.smartlease.smartlease_backend.dto.*;
+import com.smartlease.smartlease_backend.model.Role;
 import com.smartlease.smartlease_backend.model.User;
 import com.smartlease.smartlease_backend.repository.UserRepository;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -80,6 +82,17 @@ public class AuthenticationService {
         User user = (User) auth.getPrincipal();
 
         repository.delete(user);
+    }
+
+    public void deleteUserById(Long userId){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
+
+        if(user.getRole()!= Role.ROLE_ADMIN){
+            throw new AccessDeniedException("You are not authorized to perform this operation");
+        }
+
+        repository.deleteById(userId);
     }
 
     @Transactional

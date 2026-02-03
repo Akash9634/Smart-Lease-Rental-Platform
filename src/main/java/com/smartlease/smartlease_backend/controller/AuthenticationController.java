@@ -5,6 +5,7 @@ import com.smartlease.smartlease_backend.dto.AuthenticationResponse;
 import com.smartlease.smartlease_backend.dto.RegisterRequest;
 import com.smartlease.smartlease_backend.dto.UserRequest;
 import com.smartlease.smartlease_backend.service.AuthenticationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,5 +39,11 @@ public class AuthenticationController {
     public ResponseEntity<?> updateUser(@RequestBody UserRequest user){
         service.updateUser(user);
         return ResponseEntity.ok("user updated successfully");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUserById(@PathVariable Long id){
+        service.deleteUserById(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -30,6 +30,7 @@ public class PropertyController {
         return ResponseEntity.ok().body(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProperty(@PathVariable Long id){
         service.deleteProperty(id);
@@ -46,6 +47,12 @@ public class PropertyController {
     public ResponseEntity<List<PropertyResponse>> getMyProperties(){
         List<PropertyResponse> response = service.getMyProperties();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PropertyResponse>> searchProperties(@RequestParam(required = false) String address,
+                                                                   @RequestParam(required = false) Double maxPrice){
+        return ResponseEntity.ok(service.searchProperties(address, maxPrice));
     }
 
 

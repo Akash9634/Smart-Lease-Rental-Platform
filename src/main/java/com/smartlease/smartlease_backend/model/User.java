@@ -1,5 +1,6 @@
 package com.smartlease.smartlease_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -45,22 +46,32 @@ public class User implements UserDetails {
     private Role role;
 
     @OneToMany(mappedBy = "owner",
-             cascade = CascadeType.REMOVE,
+             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<Property> properties;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Booking> bookings; // "My bookings as a Tenant"
 
+    public List<Booking> getBookings() {
+        return bookings;
+    }
+
+    public void setBookings(List<Booking> bookings) {
+        this.bookings = bookings;
+    }
 
     public User() {
     }
 
-    public User(Long id, String name, String email, String password, Role role, List<Property> properties) {
+    public User(Long id, String name, String email, String password, Role role, List<Property> properties, List<Booking> bookings) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
         this.properties = properties;
+        this.bookings = bookings;
     }
 
     public Long getId() {

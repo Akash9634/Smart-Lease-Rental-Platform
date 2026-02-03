@@ -155,6 +155,23 @@ public class PropertyService {
                 .toList();
     }
 
+    public List<PropertyResponse> searchProperties(String address, Double maxPrice){
+        List<Property> properties = propertyRepository.searchProperties(address,maxPrice);
+
+        return properties.stream()
+                .map(property -> new PropertyResponse(
+                property.getId(),
+                property.getTitle(),
+                property.getDescription(),
+                property.getAddress(),
+                property.getPrice(),
+                property.isAvailable(),
+                property.getImageUrl(),
+                property.getOwner().getName()
+        ))
+                .toList();
+    }
+
 
 
 
