@@ -3,8 +3,11 @@ package com.smartlease.smartlease_backend.service;
 
 import com.smartlease.smartlease_backend.config.JwtService;
 import com.smartlease.smartlease_backend.dto.*;
+import com.smartlease.smartlease_backend.model.Booking;
+import com.smartlease.smartlease_backend.model.Property;
 import com.smartlease.smartlease_backend.model.Role;
 import com.smartlease.smartlease_backend.model.User;
+import com.smartlease.smartlease_backend.repository.PropertyRepository;
 import com.smartlease.smartlease_backend.repository.UserRepository;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 public class AuthenticationService {
@@ -25,12 +30,14 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final PropertyRepository propertyRepository;
 
-    public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
+    public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, PropertyRepository propertyRepository) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.propertyRepository = propertyRepository;
     }
 
     //register a new user
@@ -77,19 +84,42 @@ public class AuthenticationService {
                 .build();
     }
 
+    @Transactional
     public void deleteUser(){
+        //this user fetched for the transaction which closed immediately
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
+        User principal = (User) auth.getPrincipal();
 
+        //RE-FETCH the user (This attaches it to the current session)
+        User user = repository.findById(principal.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        //free up the rooms booked by this user
+        for(Booking booking : user.getBookings()){
+            Property property = booking.getProperty();
+            property.setAvailable(true);
+            propertyRepository.save(property);
+        }
         repository.delete(user);
+
     }
 
     public void deleteUserById(Long userId){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
+        User principal = (User) auth.getPrincipal();
+
+        //RE-FETCH the user (This attaches it to the current session)
+        User user = repository.findById(principal.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if(user.getRole()!= Role.ROLE_ADMIN){
             throw new AccessDeniedException("You are not authorized to perform this operation");
+        }
+
+        for(Booking booking : user.getBookings()){
+            Property property = booking.getProperty();
+            property.setAvailable(true);
+            propertyRepository.save(property);
         }
 
         repository.deleteById(userId);
