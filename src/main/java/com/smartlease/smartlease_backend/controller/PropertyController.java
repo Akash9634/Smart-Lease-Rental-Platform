@@ -55,5 +55,4 @@ public class PropertyController {
         return ResponseEntity.ok(service.searchProperties(address, maxPrice));
     }
 
-
 }
