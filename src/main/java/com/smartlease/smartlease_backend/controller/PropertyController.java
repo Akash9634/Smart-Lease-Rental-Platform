@@ -4,6 +4,7 @@ import com.smartlease.smartlease_backend.dto.PropertyRequest;
 import com.smartlease.smartlease_backend.dto.PropertyResponse;
 import com.smartlease.smartlease_backend.service.FileUploadService;
 import com.smartlease.smartlease_backend.service.PropertyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class PropertyController {
 
     @PostMapping(consumes = "multipart/form-data")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_LANDLORD')")
-    public ResponseEntity<?> saveProperty(@RequestPart("data") PropertyRequest request,
+    public ResponseEntity<?> saveProperty(@Valid @RequestPart("data") PropertyRequest request,
                                           @RequestPart("image") MultipartFile image) throws IOException {
 //        PropertyResponse response = service.saveProperty(request);
 //        return ResponseEntity.status(HttpStatus.CREATED).body(response);
