@@ -49,6 +49,7 @@ public class PropertyService {
                 .address(property.getAddress())
                 .price(property.getPrice())
                 .imageUrl(property.getImageUrl())
+                .available(property.isAvailable())
                 .ownerName(property.getOwner().getName())
                 .build();
 
