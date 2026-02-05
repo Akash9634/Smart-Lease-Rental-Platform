@@ -34,7 +34,6 @@ public class SecurityConfiguration {
                                 "/api/v1/auth/**",
                                           "/v3/api-docs/**",
                                           "/swagger-ui/**",
-                                "/swagger-ui.html",
                                 "/error"
 
                         ).permitAll()
