@@ -43,7 +43,7 @@ public class AiService {
         //send the request to google gemini api
         try{
             Map response = restTemplate.postForObject(finalUrl, requestBody, Map.class);
-            return extraxtTextFromResponse(response);
+            return extractTextFromResponse(response);
         }
         catch(Exception e){
             return "Error generating description: " + e.getMessage();
