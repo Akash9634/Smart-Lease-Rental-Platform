@@ -26,7 +26,7 @@ public class AiService {
 
         //create the prompt
         String prompt = "Write professional and attractive , and SEO friendly real estate listing description with these features"
-                + keywords + "keep it under 100 words";
+                + keywords + ". Write it in one paragraph. Do not include options or intro text. Just the description.";
 
         //construct the json request body
         // Structure: { "contents": [{ "parts": [{ "text": "YOUR PROMPT" }] }] }
