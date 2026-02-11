@@ -173,6 +173,23 @@ public class PropertyService {
                 .toList();
     }
 
+    public List<PropertyResponse> getAllProperties(){
+        List<Property> properties = propertyRepository.findAll();
+
+        return properties.stream()
+                .map(property -> new PropertyResponse(
+                        property.getId(),
+                        property.getTitle(),
+                        property.getDescription(),
+                        property.getAddress(),
+                        property.getPrice(),
+                        property.isAvailable(),
+                        property.getImageUrl(),
+                        property.getOwner().getName()
+                ))
+                .toList();
+    }
+
 
 
 

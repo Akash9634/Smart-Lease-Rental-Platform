@@ -58,6 +58,12 @@ public class PropertyController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    public ResponseEntity<List<PropertyResponse>> getAllProperty(){
+         List<PropertyResponse> response = service.getAllProperties();
+         return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/my-properties")
     public ResponseEntity<List<PropertyResponse>> getMyProperties(){
         List<PropertyResponse> response = service.getMyProperties();

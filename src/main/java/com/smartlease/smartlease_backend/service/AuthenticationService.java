@@ -51,7 +51,7 @@ public class AuthenticationService {
 
         var user = new User(); // we are using var - new feature in java it will look on the right side and figure out itself the type
         user.setName(request.getName());
-        user.setEmail(request.getEmail());
+        user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
 
