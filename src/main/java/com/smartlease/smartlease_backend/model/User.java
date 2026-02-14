@@ -127,7 +127,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername(){
-        return email; //we want users to log in with email, not username
+        return email; //we want users to log in with email, not username , so email will be treated as username
     }
 
     @Override
