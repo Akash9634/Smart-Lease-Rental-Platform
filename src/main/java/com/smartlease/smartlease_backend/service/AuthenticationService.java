@@ -3,6 +3,8 @@ package com.smartlease.smartlease_backend.service;
 
 import com.smartlease.smartlease_backend.config.JwtService;
 import com.smartlease.smartlease_backend.dto.*;
+import com.smartlease.smartlease_backend.exception.BadRequestException;
+import com.smartlease.smartlease_backend.exception.ResourceNotFoundException;
 import com.smartlease.smartlease_backend.model.Booking;
 import com.smartlease.smartlease_backend.model.Property;
 import com.smartlease.smartlease_backend.model.Role;
@@ -130,7 +132,10 @@ public class AuthenticationService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) auth.getPrincipal();
 
-        if(updateRequest.getName() != null) {
+        if(updateRequest.getName() == null || updateRequest.getName().isBlank()) {
+            throw new BadRequestException("name can not be null or blank");
+        }
+        else{
             user.setName(updateRequest.getName());
         }
         repository.save(user);

@@ -1,6 +1,10 @@
 package com.smartlease.smartlease_backend.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class UserRequest {
+
+    @NotBlank(message = "Name cannot be blank")
     String name;
 
     public UserRequest(String name) {

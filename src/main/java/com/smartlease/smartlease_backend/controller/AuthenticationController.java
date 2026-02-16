@@ -5,6 +5,7 @@ import com.smartlease.smartlease_backend.dto.AuthenticationResponse;
 import com.smartlease.smartlease_backend.dto.RegisterRequest;
 import com.smartlease.smartlease_backend.dto.UserRequest;
 import com.smartlease.smartlease_backend.service.AuthenticationService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

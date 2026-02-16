@@ -53,7 +53,7 @@ public class PropertyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PropertyResponse> getPropertyById(@PathVariable Long id){
+    public ResponseEntity<?> getPropertyById(@PathVariable Long id){
         PropertyResponse response = service.getPropertyById(id);
         return ResponseEntity.ok(response);
     }
