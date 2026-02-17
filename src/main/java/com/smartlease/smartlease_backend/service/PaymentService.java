@@ -30,7 +30,7 @@ public class PaymentService {
             //razorpay takes amount in paise
             //so 5000 becomes 500000
             JSONObject orderRequest = new JSONObject();
-            orderRequest.put("amount", amount*100   );
+            orderRequest.put("amount", amount*100);
             orderRequest.put("currency", "INR");
 
             String uniqueReceipt = "txn_" + UUID.randomUUID().toString(); // for making order requests unique
