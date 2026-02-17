@@ -18,12 +18,8 @@ public class PaymentController {
 
     @PostMapping("/create-order/{amount}")
     public ResponseEntity<String> createOrder(@PathVariable Double amount){
-        try{
             String respone = paymentService.createOrder(amount);
             return ResponseEntity.ok(respone);
-        } catch (RazorpayException e){
-            return ResponseEntity.badRequest().body("Error creating order" + e.getMessage());
-        }
     }
 
 }
