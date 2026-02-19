@@ -24,13 +24,13 @@ public class PaymentService {
     @Transactional
     public String createOrder(Double amount) {
 
-        try{
+        try {
             RazorpayClient client = new RazorpayClient(keyId, keySecret);
 
             //razorpay takes amount in paise
             //so 5000 becomes 500000
             JSONObject orderRequest = new JSONObject();
-            orderRequest.put("amount", amount*100);
+            orderRequest.put("amount", amount * 100);
             orderRequest.put("currency", "INR");
 
             String uniqueReceipt = "txn_" + UUID.randomUUID().toString(); // for making order requests unique
@@ -39,13 +39,11 @@ public class PaymentService {
             //talk to razorpay
             Order order = client.orders.create(orderRequest);
 
-            //return the orderid
+            //return the orderi
             return order.get("id").toString();
-        }
-        catch(RazorpayException e){
+        } catch (RazorpayException e) {
             System.err.println("Razorpay failed" + e.getMessage());
             throw new PaymentFailedException("Payment gateway is down");
         }
-
     }
 }
