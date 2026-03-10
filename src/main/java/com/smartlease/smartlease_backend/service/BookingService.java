@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class BookingService {
@@ -64,4 +65,30 @@ public class BookingService {
 
 
     }
+
+    public List<BookingResponse> getAllBookings(Long userId){
+        List<Booking> bookings = bookingRepository.findAllByUserId(userId);
+
+        return bookings.stream()
+                .map(booking -> BookingResponse.builder()
+                        .id(booking.getId())
+                        .status(booking.getStatus())
+                        .bookingDate(booking.getBookingDate())
+                        .propertyTitle(booking.getProperty().getTitle())
+                        .tenantName(booking.getUser().getName())
+                        .build()
+                ).toList();
+    }
+
+    public void deleteBookingById(Long bookingId){
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+                () ->  new BadRequestException("booking not found")
+        );
+
+        bookingRepository.delete(booking);
+
+
+    }
+
+
 }

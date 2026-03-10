@@ -39,7 +39,7 @@ public class PaymentService {
             //talk to razorpay
             Order order = client.orders.create(orderRequest);
 
-            //return the orderi
+            //return the order
             return order.get("id").toString();
         } catch (RazorpayException e) {
             System.err.println("Razorpay failed" + e.getMessage());
