@@ -100,6 +100,7 @@ public class PropertyService {
 
     }
 
+    @Transactional
     public void deleteProperty(Long propertyId){
         //get the property
         Property property = propertyRepository.findById(propertyId)
