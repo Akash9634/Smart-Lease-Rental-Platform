@@ -59,6 +59,9 @@ public class BookingService {
                 .bookingDate(booking.getBookingDate())
                 .propertyTitle(property.getTitle())
                 .propertyId(property.getId())
+                .propertyAddress(property.getAddress())
+                .propertyPrice(property.getPrice())
+                .propertyImageUrl(property.getImageUrl())
                 .tenantName(user.getName())
                 .build();
 
@@ -66,8 +69,13 @@ public class BookingService {
 
     }
 
-    public List<BookingResponse> getAllBookings(Long userId){
-        List<Booking> bookings = bookingRepository.findAllByUserId(userId);
+
+
+    public List<BookingResponse> getMyBookings() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
+
+        List<Booking> bookings = bookingRepository.findAllByUserId(user.getId());
 
         return bookings.stream()
                 .map(booking -> BookingResponse.builder()
@@ -76,6 +84,11 @@ public class BookingService {
                         .bookingDate(booking.getBookingDate())
                         .propertyTitle(booking.getProperty().getTitle())
                         .tenantName(booking.getUser().getName())
+                        // Assuming that the user will need to navigate to property or look at image in dashboard
+                        .propertyId(booking.getProperty().getId())
+                        .propertyAddress(booking.getProperty().getAddress())
+                        .propertyPrice(booking.getProperty().getPrice())
+                        .propertyImageUrl(booking.getProperty().getImageUrl())
                         .build()
                 ).toList();
     }

@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import com.smartlease.smartlease_backend.model.User;
+
 @Service
 public class JwtService {
 
@@ -27,6 +29,10 @@ public class JwtService {
         Map<String, Object> extraClaims = new HashMap<>();
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
         extraClaims.put("role", role);
+        if (userDetails instanceof User) {
+            extraClaims.put("id", ((User) userDetails).getId());
+            extraClaims.put("name", ((User) userDetails).getName());
+        }
         return generateToken(extraClaims, userDetails);
     }
 

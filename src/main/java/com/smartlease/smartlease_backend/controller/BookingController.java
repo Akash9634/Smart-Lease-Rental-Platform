@@ -24,9 +24,11 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<BookingResponse>> getAllBookings(@PathVariable Long userId){
-        List<BookingResponse> bookings = service.getAllBookings(userId);
+
+
+    @GetMapping("/my-bookings")
+    public ResponseEntity<List<BookingResponse>> getMyBookings(){
+        List<BookingResponse> bookings = service.getMyBookings();
         return ResponseEntity.ok(bookings);
     }
 

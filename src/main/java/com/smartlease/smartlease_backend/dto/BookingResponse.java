@@ -15,5 +15,8 @@ public class BookingResponse {
     private LocalDateTime bookingDate;
     private String propertyTitle;
     private Long propertyId;
+    private String propertyAddress;
+    private Double propertyPrice;
+    private String propertyImageUrl;
     private String tenantName;
 }
