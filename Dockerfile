@@ -1,14 +1,14 @@
-FROM eclipse-temurin:21-jre-alpine
+# -------- Build Stage --------
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-#create working directory inside container
+# -------- Run Stage --------
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-#copy your jar into the container
-COPY target/smartlease-backend-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
-#tell docker your app runs on port 8080
 EXPOSE 8080
-
-#command to start the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
