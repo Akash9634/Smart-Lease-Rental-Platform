@@ -1,0 +1,525 @@
+# 🏠 SmartLease Frontend — Beginner's Walkthrough
+
+This guide explains **every file** in your SmartLease React frontend, written for someone who is new to React and frontend development. Read it top-to-bottom, or jump to any section you're curious about.
+
+---
+
+## Table of Contents
+
+1. [The Big Picture](#1-the-big-picture)
+2. [Tooling & Config Files](#2-tooling--config-files)
+3. [React Crash Course (just enough)](#3-react-crash-course-just-enough)
+4. [How the App Boots Up](#4-how-the-app-boots-up)
+5. [The API Layer — axiosConfig.js](#5-the-api-layer--axiosconfigjs)
+6. [Context Providers (Global State)](#6-context-providers-global-state)
+7. [Routing & App.jsx](#7-routing--appjsx)
+8. [The Navbar Component](#8-the-navbar-component)
+9. [Pages — Deep Dive](#9-pages--deep-dive)
+10. [Glossary](#10-glossary)
+
+---
+
+## 1. The Big Picture
+
+```mermaid
+graph TD
+    A["🌐 Browser"] --> B["main.jsx<br/>(Entry Point)"]
+    B --> C["AuthProvider<br/>(Login State)"]
+    C --> D["ThemeProvider<br/>(Dark/Light Mode)"]
+    D --> E["App.jsx<br/>(Router + Routes)"]
+    E --> F["Navbar"]
+    E --> G["Home Page"]
+    E --> H["Login Page"]
+    E --> I["Register Page"]
+    E --> J["AddProperty Page"]
+    E --> K["PropertyDetails Page"]
+    E --> L["Dashboard Page"]
+    
+    G --> M["axiosConfig.js<br/>(API calls to backend)"]
+    J --> M
+    K --> M
+    L --> M
+    H --> C
+    I --> C
+```
+
+Your frontend is a **Single-Page Application (SPA)** — the browser loads *one* HTML file, and React swaps out what you see on screen by rendering different "pages" (components) based on the URL.
+
+| Layer | Files | What it does |
+|---|---|---|
+| **Config** | [package.json](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/package.json), [vite.config.js](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/vite.config.js), [tailwind.config.js](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/tailwind.config.js), [index.css](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/index.css) | Tools, dependencies, styling setup |
+| **Entry** | [main.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/main.jsx) | Mounts React into the HTML, wraps app in providers |
+| **Routing** | [App.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/App.jsx) | Maps URLs → page components |
+| **Global State** | [AuthContext.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/AuthContext.jsx), [ThemeContext.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/ThemeContext.jsx) | Shares login & theme state everywhere |
+| **API** | [axiosConfig.js](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/api/axiosConfig.js) | Talks to your Spring Boot backend |
+| **Shared UI** | [Navbar.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/components/Navbar.jsx) | Navigation bar shown on every page |
+| **Pages** | [Home](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/Home.jsx#7-126), [Login](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/Login.jsx#6-104), [Register](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/Register.jsx#6-137), [AddProperty](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/AddProperty.jsx#7-261), [PropertyDetails](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/PropertyDetails.jsx#12-341), [Dashboard](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/Dashboard.jsx#8-255) | Individual screens |
+
+---
+
+## 2. Tooling & Config Files
+
+### [package.json](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/package.json)
+
+This is the "ingredients list" for your project. Key sections:
+
+| Section | Meaning |
+|---|---|
+| `scripts` | Commands you can run: `npm run dev` starts the dev server |
+| `dependencies` | Libraries your app **needs to run** (React, Axios, Framer Motion…) |
+| `devDependencies` | Tools needed only **during development** (Vite, Tailwind…) |
+
+**Key dependencies explained:**
+
+| Library | What it does |
+|---|---|
+| `react` + `react-dom` | The UI framework — lets you build with components |
+| `react-router-dom` | Client-side routing (navigation without full page reloads) |
+| `axios` | Makes HTTP requests to your backend API |
+| `jwt-decode` | Decodes JWT tokens to read user info (name, role, etc.) |
+| `framer-motion` | Smooth animations (fade-ins, slides, etc.) |
+| `lucide-react` | Beautiful SVG icons as React components |
+| `sockjs-client` + `@stomp/stompjs` | WebSocket libraries for real-time chat |
+
+### [vite.config.js](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/vite.config.js)
+
+Vite is your **build tool** — it bundles and serves your code during development. This config just enables two plugins: React support and Tailwind CSS.
+
+### [tailwind.config.js](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/tailwind.config.js) & [index.css](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/index.css)
+
+**Tailwind CSS** lets you style elements using utility classes directly in your HTML/JSX instead of writing separate CSS files. For example, `className="text-red-500 font-bold p-4"` means: red text, bold, padding of 1rem.
+
+[index.css](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/index.css) imports Tailwind and sets up dark-mode support + base body styles.
+
+---
+
+## 3. React Crash Course (just enough)
+
+### Components
+A **component** is a reusable piece of UI. In React, every component is just a **JavaScript function that returns JSX** (HTML-like syntax):
+
+```jsx
+// This is a React component
+const Greeting = ({ name }) => {
+  return <h1>Hello, {name}!</h1>;
+};
+```
+
+### JSX
+JSX looks like HTML but is actually JavaScript. Key differences from HTML:
+- Use `className` instead of `class`
+- Use `{}` to embed JavaScript expressions: `<p>{2 + 2}</p>` renders "4"
+- Self-closing tags are required: `<img />` not `<img>`
+
+### Hooks (useState, useEffect, useContext)
+
+Hooks are special functions that let components "hook into" React features:
+
+| Hook | Purpose | Example |
+|---|---|---|
+| `useState` | Store & update data within a component | `const [count, setCount] = useState(0)` |
+| `useEffect` | Run code when the component loads or when some data changes | Fetch data from API on page load |
+| `useContext` | Access data shared across many components without passing props | Access logged-in user info from anywhere |
+| `useRef` | Hold a reference to a DOM element or a mutable value | Reference to the WebSocket client |
+| `useNavigate` | Navigate to a different page programmatically | `navigate('/login')` after logout |
+| `useParams` | Read URL parameters | `useParams()` gives `{ id: "5" }` for `/property/5` |
+
+### Props
+Data passed **from parent to child** component:
+```jsx
+// Parent passes "name" prop
+<Greeting name="Akash" />
+
+// Child receives it
+const Greeting = ({ name }) => <h1>Hello, {name}!</h1>;
+```
+
+### Conditional Rendering
+Show different things based on conditions:
+```jsx
+{isLoggedIn ? <LogoutButton /> : <LoginButton />}
+```
+
+### Rendering Lists
+Use `.map()` to render an array of items:
+```jsx
+{items.map(item => <Card key={item.id} title={item.title} />)}
+```
+
+---
+
+## 4. How the App Boots Up
+
+### [main.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/main.jsx)
+
+This is the **very first file that runs**. Here's what each line does:
+
+```jsx
+// 1. Import React and ReactDOM (the engine that renders to the browser)
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+
+// 2. Import your root component
+import App from './App.jsx'
+
+// 3. Import global styles
+import './index.css'
+
+// 4. Import context providers (explained in Section 6)
+import { AuthProvider } from './context/AuthContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
+
+// 5. Find the <div id="root"> in index.html and mount React there
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>        {/* Development helper that warns about issues */}
+    <AuthProvider>           {/* Makes login state available everywhere */}
+      <ThemeProvider>        {/* Makes dark/light mode available everywhere */}
+        <App />              {/* Your actual application */}
+      </ThemeProvider>
+    </AuthProvider>
+  </React.StrictMode>,
+)
+```
+
+> [!IMPORTANT]
+> The **nesting order matters**. [AuthProvider](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/AuthContext.jsx#7-77) wraps [ThemeProvider](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/ThemeContext.jsx#5-39) which wraps [App](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/App.jsx#19-53). This means the entire app can access both auth and theme state. Think of it like Russian nesting dolls 🪆.
+
+---
+
+## 5. The API Layer — axiosConfig.js
+
+### [axiosConfig.js](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/api/axiosConfig.js)
+
+This file creates a pre-configured HTTP client for talking to your Spring Boot backend:
+
+```jsx
+import axios from 'axios';
+
+// Create an Axios "instance" with a base URL
+// All requests will start with http://localhost:8080
+const api = axios.create({
+    baseURL: 'http://localhost:8080',
+});
+
+// INTERCEPTOR: Runs before EVERY request
+// Automatically attaches the JWT token to the Authorization header
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+export default api;
+```
+
+**Why this is smart:** Instead of manually adding the token to every API call, the interceptor does it automatically. Every file that imports `api` gets this behavior for free.
+
+```mermaid
+sequenceDiagram
+    participant Component
+    participant Axios Interceptor
+    participant Backend
+
+    Component->>Axios Interceptor: api.get('/api/v1/properties')
+    Axios Interceptor->>Axios Interceptor: Read token from localStorage
+    Axios Interceptor->>Backend: GET /api/v1/properties<br/>Authorization: Bearer <token>
+    Backend-->>Component: JSON response
+```
+
+---
+
+## 6. Context Providers (Global State)
+
+### What is Context?
+
+Normally, to share data between components you pass **props** from parent to child. But what if a deeply nested component needs the user's login status? You'd have to pass it through 5+ levels of components ("prop drilling"). **Context** solves this by making data globally accessible.
+
+### [AuthContext.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/AuthContext.jsx)
+
+This manages **everything about authentication**: login, register, logout, and knowing who the current user is.
+
+**State variables:**
+
+| Variable | Type | Purpose |
+|---|---|---|
+| `user` | Object or null | `{ id, name, email, role }` — the logged-in user |
+| `token` | String or null | The JWT token string |
+| `isAuthenticated` | Boolean | `true` if the user is logged in |
+| `loading` | Boolean | `true` while checking if a saved token is valid |
+
+**Key functions:**
+
+| Function | What it does |
+|---|---|
+| [login(email, password)](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/AuthContext.jsx#42-52) | POST to `/api/v1/auth/login`, saves the token |
+| [register(name, email, password, role)](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/AuthContext.jsx#53-63) | POST to `/api/v1/auth/register`, saves the token |
+| [logout()](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/AuthContext.jsx#64-70) | Clears the token, user, and localStorage |
+
+**How token restoration works (the `useEffect`):**
+
+```mermaid
+flowchart TD
+    A["App starts"] --> B{"Token in localStorage?"}
+    B -- Yes --> C["Decode JWT with jwtDecode()"]
+    C --> D{"Token expired?"}
+    D -- Yes --> E["Call logout()"]
+    D -- No --> F["Set user info from token<br/>(id, name, email, role)"]
+    B -- No --> G["Set isAuthenticated = false"]
+    F --> H["Set loading = false"]
+    G --> H
+    E --> H
+```
+
+**How any component uses it:**
+
+```jsx
+// In any component:
+import { useAuth } from '../context/AuthContext';
+
+const MyComponent = () => {
+    const { user, isAuthenticated, login, logout } = useAuth();
+    // Now you have access to everything!
+};
+```
+
+### [ThemeContext.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/ThemeContext.jsx)
+
+This manages **dark mode / light mode**. It:
+
+1. Checks `localStorage` for a saved preference
+2. Falls back to the OS system preference (`prefers-color-scheme: dark`)
+3. Adds/removes the `dark` class on the `<html>` element (Tailwind uses this for dark mode styles)
+4. Provides `isDarkMode` (boolean) and [toggleTheme()](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/ThemeContext.jsx#29-32) (function) to any component
+
+---
+
+## 7. Routing & App.jsx
+
+### [App.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/App.jsx)
+
+This is the **heart of your app's navigation**. It uses React Router to decide which page to show based on the URL:
+
+```jsx
+<Router>                          {/* Enables client-side routing */}
+  <Navbar />                      {/* Always visible on every page */}
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/property/:id" element={<PropertyDetails />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
+    <Route path="/add-property" element={
+      <PrivateRoute><AddProperty /></PrivateRoute>    {/* Login required */}
+    } />
+    <Route path="/dashboard" element={
+      <PrivateRoute><Dashboard /></PrivateRoute>      {/* Login required */}
+    } />
+  </Routes>
+</Router>
+```
+
+| URL | Page Shown | Auth Required? |
+|---|---|---|
+| `/` | Home | ❌ |
+| `/property/5` | PropertyDetails (for property with id 5) | ❌ |
+| `/login` | Login | ❌ |
+| `/register` | Register | ❌ |
+| `/add-property` | AddProperty | ✅ |
+| `/dashboard` | Dashboard | ✅ |
+
+### The [PrivateRoute](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/App.jsx#12-18) Component
+
+```jsx
+const PrivateRoute = ({ children }) => {
+    const { isAuthenticated, loading } = useAuth();
+    if (loading) return <LoadingSpinner />;
+    return isAuthenticated ? children : <Navigate to="/login" />;
+};
+```
+
+This is a **guard**. If you're not logged in and try to visit `/dashboard`, it automatically redirects you to `/login`. If you ARE logged in, it renders the child page normally.
+
+---
+
+## 8. The Navbar Component
+
+### [Navbar.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/components/Navbar.jsx)
+
+The navigation bar that appears at the top of every page. It demonstrates several React patterns:
+
+**Conditional rendering based on auth state:**
+```jsx
+{isAuthenticated ? (
+    // Show: Add Property, Profile, Logout
+) : (
+    // Show: Login, Register
+)}
+```
+
+**Key features:**
+- **Brand logo** with a spring animation on hover (Framer Motion)
+- **Dark mode toggle** button (sun/moon icon)
+- **Dynamic links** that change based on login status
+- Uses icons from `lucide-react` ([Home](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/Home.jsx#7-126), `PlusSquare`, `LogIn`, etc.)
+
+---
+
+## 9. Pages — Deep Dive
+
+### 🏠 [Home.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/Home.jsx) — Property Listing
+
+**What it does:** Fetches all properties from the backend and displays them in a searchable grid.
+
+**React patterns used:**
+
+| Pattern | Where | What's happening |
+|---|---|---|
+| `useState` | Lines 9-11 | Stores properties list, loading state, search term |
+| `useEffect` | Lines 13-26 | Fetches properties from API **once** when component mounts (the `[]` dependency array means "run only once") |
+| `.filter()` | Lines 28-31 | Client-side search filtering by title or address |
+| `.map()` | Lines 74-120 | Renders a card for each property |
+| Conditional rendering | Lines 66-122 | Shows "No properties found" or the grid |
+| Framer Motion | Lines 75-80 | Staggered fade-in animation for each card |
+
+**Data flow:**
+```
+Page loads → useEffect fires → api.get('/api/v1/properties')
+→ setProperties(response.data) → React re-renders the grid
+```
+
+### 🔐 [Login.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/Login.jsx) — Sign In Form
+
+**What it does:** A form that collects email + password, calls [login()](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/context/AuthContext.jsx#42-52) from AuthContext.
+
+**Key flow:**
+```
+User fills form → clicks Submit → handleSubmit() called
+→ e.preventDefault() (stops page reload)
+→ login(email, password) from AuthContext
+→ If success: navigate('/') (go to Home)
+→ If fail: setError(message) (show error)
+```
+
+**`e.preventDefault()`** — Without this, the browser would do a full page refresh when the form is submitted (old-school HTML behavior). In React, we prevent that and handle submission with JavaScript instead.
+
+### 📝 [Register.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/Register.jsx) — Sign Up Form
+
+Very similar to Login, but with extra fields (name, role dropdown). Uses a single `formData` state object:
+
+```jsx
+const [formData, setFormData] = useState({
+    name: '', email: '', password: '', role: 'ROLE_USER'
+});
+
+// One handler for ALL inputs (the `name` attribute matches the state key)
+const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+};
+```
+
+> [!TIP]
+> The `[e.target.name]` syntax is called a **computed property name**. If the input's `name="email"`, then `[e.target.name]` becomes `["email"]`, which updates just the `email` field. The `...formData` spread operator copies all existing values, so other fields aren't lost.
+
+### ➕ [AddProperty.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/AddProperty.jsx) — Create a Listing
+
+**What it does:** A form to create a new property listing with an image upload and an AI description generator.
+
+**Notable patterns:**
+
+1. **Image upload with preview** (lines 29-39):
+   ```jsx
+   const reader = new FileReader();
+   reader.onloadend = () => setImagePreview(reader.result);
+   reader.readAsDataURL(file);
+   ```
+   `FileReader` converts the image file to a base64 string so you can show a preview *before* uploading.
+
+2. **AI description generation** (lines 41-60):
+   Calls `/api/v1/ai/generate` with the title+address as keywords, and auto-fills the description field.
+
+3. **FormData for multipart upload** (lines 74-89):
+   When sending both JSON and a file, you can't use regular JSON. Instead, you use the browser's `FormData` API to send a "multipart" request — the JSON goes as a `Blob` and the image goes as a file.
+
+### 🔍 [PropertyDetails.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/PropertyDetails.jsx) — View & Book a Property
+
+The most complex page. It has **three major features**:
+
+#### Feature 1: Property Display
+Fetches a single property by ID from the URL (`useParams()`) and shows its details.
+
+#### Feature 2: Real-Time Chat (WebSocket)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant React State
+    participant STOMP Client
+    participant Backend WebSocket
+
+    User->>React State: Click "Chat" button
+    React State->>Backend WebSocket: Load chat history (REST)
+    React State->>STOMP Client: Connect via SockJS
+    STOMP Client->>Backend WebSocket: SUBSCRIBE /topic/property/{id}
+    
+    User->>STOMP Client: Send message
+    STOMP Client->>Backend WebSocket: PUBLISH /app/chat/{id}
+    Backend WebSocket-->>STOMP Client: Broadcast message
+    STOMP Client-->>React State: Add to messages array
+    React State-->>User: Message appears in chat
+```
+
+- Uses **SockJS** (WebSocket fallback) + **STOMP** (messaging protocol on top of WebSocket)
+- `useRef` stores the STOMP client so it persists across re-renders
+- Another `useRef` + `useEffect` auto-scrolls to the latest message
+
+#### Feature 3: Razorpay Payment
+- Creates a payment order on the backend
+- Opens the Razorpay checkout popup
+- On success, creates a booking record
+
+### 📊 [Dashboard.jsx](file:///c:/Users/akash/Desktop/smartlease/smartlease_frontend/src/pages/Dashboard.jsx) — User Profile & Management
+
+**What it does:** Shows different content based on the user's role:
+
+| Role | What they see |
+|---|---|
+| `ROLE_LANDLORD` / `ROLE_ADMIN` | Their listed properties + ability to delete them |
+| `ROLE_USER` / `ROLE_TENANT` | Their bookings + links to view property details |
+
+**Key pattern — role-based data fetching:**
+```jsx
+if (user?.role === 'ROLE_LANDLORD') {
+    api.get('/api/v1/properties/my-properties');  // Fetch my listings
+} else {
+    api.get('/api/v1/bookings/my-bookings');       // Fetch my bookings
+}
+```
+
+**Inline name editing** — The profile name can be edited in-place with a toggle between display and edit mode using `isEditingName` state.
+
+---
+
+## 10. Glossary
+
+| Term | Meaning |
+|---|---|
+| **SPA** | Single-Page Application — one HTML file, React swaps content dynamically |
+| **Component** | A reusable piece of UI, written as a function returning JSX |
+| **JSX** | HTML-like syntax inside JavaScript (compiled by Vite/Babel) |
+| **Hook** | Special function (`useState`, `useEffect`, etc.) that adds features to components |
+| **State** | Data that, when changed, causes the component to re-render |
+| **Props** | Data passed from a parent component to a child component |
+| **Context** | Global state accessible by any component without prop drilling |
+| **Provider** | A component that wraps part of the tree to share context values |
+| **Route** | A mapping from a URL path to a component |
+| **Interceptor** | A function that runs before/after every HTTP request (Axios feature) |
+| **JWT** | JSON Web Token — an encoded string containing user info + expiration |
+| **WebSocket** | A persistent two-way connection for real-time communication |
+| **STOMP** | Simple Text Oriented Messaging Protocol — used on top of WebSockets |
+| **Tailwind CSS** | Utility-first CSS framework — style with class names like `text-red-500` |
+| **Framer Motion** | Animation library for React — adds smooth transitions |
+| **Vite** | Lightning-fast build tool and dev server for modern web apps |
