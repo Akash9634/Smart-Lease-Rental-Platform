@@ -50,6 +50,13 @@ public class AuthenticationController {
         service.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }
+
+
+        @GetMapping("/")
+        public String home() {
+            return "Backend is running 🚀";
+        }
+
 }
 
 
