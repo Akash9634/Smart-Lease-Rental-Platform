@@ -52,6 +52,15 @@ public class AuthenticationController {
     }
 
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader){
+        //extract token (remove bearer prefix)
+        String token = authHeader.substring(7);
+        service.logout(token);
+        return ResponseEntity.ok("Logged out successfully");
+    }
+
+
         @GetMapping("/")
         public String home() {
             return "Backend is running 🚀";

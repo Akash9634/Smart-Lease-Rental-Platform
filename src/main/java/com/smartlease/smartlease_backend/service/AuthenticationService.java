@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -33,13 +34,15 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PropertyRepository propertyRepository;
+    private final TokenBlackListService tokenBlackListService;
 
-    public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, PropertyRepository propertyRepository) {
+    public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, PropertyRepository propertyRepository, TokenBlackListService tokenBlackListService) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.propertyRepository = propertyRepository;
+        this.tokenBlackListService = tokenBlackListService;
     }
 
     //register a new user
@@ -140,6 +143,17 @@ public class AuthenticationService {
         }
         repository.save(user);
 
+    }
+
+    public void logout(String token){
+        //get tokens remaining time to live
+        Date expiration = jwtService.extractExpiration(token);
+        long remainingMs = expiration.getTime() - System.currentTimeMillis();
+
+        //only blacklist if token has not already expired
+        if(remainingMs > 0){
+            tokenBlackListService.blacklistToken(token, remainingMs);
+        }
     }
 
 
