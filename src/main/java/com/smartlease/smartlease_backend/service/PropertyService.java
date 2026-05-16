@@ -8,6 +8,8 @@ import com.smartlease.smartlease_backend.model.User;
 import com.smartlease.smartlease_backend.repository.PropertyRepository;
 import com.smartlease.smartlease_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +27,7 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
 
+    @CacheEvict(value = "allProperties", allEntries = true)
     public PropertyResponse saveProperty(PropertyRequest request){
         //get the currently logged-in user
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -55,6 +58,7 @@ public class PropertyService {
 
     }
 
+    @CacheEvict(value = {"allProperties", "property"}, allEntries = true)
     @Transactional
     public PropertyResponse updateProperty(Long propertyId, PropertyRequest request){
         //get the current user
@@ -100,6 +104,7 @@ public class PropertyService {
 
     }
 
+    @CacheEvict(value = {"allProperties", "property"}, allEntries = true)
     @Transactional
     public void deleteProperty(Long propertyId){
         //get the property
@@ -120,6 +125,7 @@ public class PropertyService {
 
     }
 
+    @Cacheable(value = "property", key = "#propertyId")
     public PropertyResponse getPropertyById(Long propertyId){
         Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new BadRequestException("property not found"));
@@ -174,6 +180,7 @@ public class PropertyService {
                 .toList();
     }
 
+    @Cacheable(value = "allProperties")
     public List<PropertyResponse> getAllProperties(){
         List<Property> properties = propertyRepository.findAll();
 
