@@ -37,11 +37,15 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler)  // Our custom handler
+                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/register",
+                                "/login/oauth2/code/*",
                                 "/",
                                 "/api/v1/ai/**",
                                           "/v3/api-docs/**",

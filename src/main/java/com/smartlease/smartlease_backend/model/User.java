@@ -38,12 +38,14 @@ public class User implements UserDetails {
     )
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters long")
+//    @NotBlank(message = "Password is required")
+//    @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    private String oauthProvider;
 
     @OneToMany(mappedBy = "owner",
              cascade = CascadeType.ALL,
